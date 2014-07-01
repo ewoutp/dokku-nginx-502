@@ -34,6 +34,9 @@ function CountDown() {
 }
 CountDown();
 /*]]>*/ </script> 
+Please wait ...
+<div id="CDTimer"></div>
 </body>
+</html>
 EOF
 fi
