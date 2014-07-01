@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"
+
+# Strip of last }
+sed -i '$s/}$//' $DOKKU_ROOT/$APP/nginx.conf 
+
+echo "  error_page 502 /502.html;" >> $DOKKU_ROOT/$APP/nginx.conf 
+echo "  location /502.html {" >> $DOKKU_ROOT/$APP/nginx.conf 
+echo "    root  $DOKKU_ROOT/$APP/public_html;" >> $DOKKU_ROOT/$APP/nginx.conf 
+echo "  }" >> $DOKKU_ROOT/$APP/nginx.conf 
+echo "}" >> $DOKKU_ROOT/$APP/nginx.conf 
+
+mkdir -p $DOKKU_ROOT/$APP/public_html
+if [ ! -e $DOKKU_ROOT/$APP/public_html/502.html ]; then
+cat > $DOKKU_ROOT/$APP/public_html/502.html <<EOF
+<head>
+<meta http-equiv="refresh" content="40" /> 
+</head>
+<body>
+<script language="JavaScript" type="text/javascript">
+/*<![CDATA[*/
+var TimerVal = 40;
+var TimerSPan = document.getElementById("CDTimer");
+function CountDown() {
+   setTimeout( "CountDown()", 1000 );
+   TimerSPan.innerHTML=TimerVal;
+   TimerVal=TimerVal-1;
+   if (TimerVal<0) { 
+     TimerVal=0;
+     location.reload(true); 
+   } 
+}
+CountDown();
+/*]]>*/ </script> 
+</body>
+EOF
+fi
